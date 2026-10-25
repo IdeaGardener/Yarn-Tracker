@@ -1,0 +1,508 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<div style="position:absolute;top:10px;right:16px;z-index:9999;
+            display:grid;grid-template-columns:auto auto;
+            gap:8px 12px;font-size:14px;font-weight:600;">
+
+  <a href="index.html" style="text-decoration:none;color:#C2185B;">🌐 EN</a>
+  <a href="de.html" style="text-decoration:none;color:#C2185B;">🌐 DE</a>
+
+  <a href="ru.html" style="text-decoration:none;color:#C2185B;">🌐 RU</a>
+  <a href="uk.html" style="text-decoration:none;color:#C2185B;">🌐 UK</a>
+
+</div>
+<title>Учёт пряжи</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column. Two views (stash, projects) switched by a pill control; lists of cards; forms stay in place. */
+:root{
+  --bg:#EDF0F4; --surface:#FFFFFF; --fg:#18202B; --muted:#5E6B7D; --line:#D5DBE4;
+  --accent:#C2185B; --on-accent:#FFFFFF; --teal:#0F766E; --track:#D5DBE4;
+  --font-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --font-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181F; --surface:#1D232D; --fg:#E8ECF2; --muted:#93A0B3; --line:#2C3544;
+    --accent:#FF7DAE; --on-accent:#14181F; --teal:#4FD1C0; --track:#2C3544; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181F; --surface:#1D232D; --fg:#E8ECF2; --muted:#93A0B3; --line:#2C3544;
+  --accent:#FF7DAE; --on-accent:#14181F; --teal:#4FD1C0; --track:#2C3544; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.4;
+  padding-block:16px 40px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1{margin:0;font-family:var(--font-display);font-weight:700;font-size:1.7rem;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+
+.seg{display:flex;border:1.5px solid var(--line);border-radius:999px;padding:3px}
+.seg button{flex:1;background:transparent;border:0;border-radius:999px;padding:9px 12px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--teal);color:var(--bg)}
+.seg.small{display:inline-flex}
+.seg.small button{flex:none;padding:6px 14px}
+
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.tab{flex:none;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:500;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+.tab.add{color:var(--accent);border-style:dashed;border-color:var(--accent)}
+
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.danger{color:var(--accent)}
+.btn.sm{padding:7px 12px;font-size:.9rem}
+.btn:disabled{opacity:.4;cursor:default}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+details.panel{gap:0}
+details>summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"+";color:var(--muted);font-size:1.3rem;line-height:1}
+details[open]>summary::after{content:"−"}
+.inner{display:flex;flex-direction:column;gap:12px;padding-top:12px}
+.foot{color:var(--muted);font-size:.85rem;text-wrap:pretty;margin:0}
+.sub{color:var(--muted)}
+
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld>span{color:var(--muted);font-size:.85rem;font-weight:500}
+.txt,.sel{width:100%;min-width:0;background:var(--bg);color:var(--fg);border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;font:inherit}
+.txt::placeholder{color:var(--muted)}
+input[type="color"].txt{padding:3px;height:42px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.msg{color:var(--accent);font-weight:500;min-height:1.2em}
+
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.tile b{font-family:var(--font-display);font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile span{color:var(--muted);font-size:.8rem}
+
+.list{display:flex;flex-direction:column;gap:12px}
+.yarn{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.yhead{display:flex;align-items:center;gap:12px}
+.dot{width:34px;height:34px;border-radius:50%;flex:none;border:2px solid var(--line)}
+.ytitle{flex:1;min-width:0;display:flex;flex-direction:column}
+.ytitle b{overflow-wrap:anywhere}
+.ytitle small{color:var(--muted)}
+.ygrams{text-align:right;white-space:nowrap}
+.ygrams b{font-family:var(--font-display);font-size:1.7rem;font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:999px;background:var(--track);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--teal);border-radius:999px}
+.yact{display:flex;gap:8px;flex-wrap:wrap}
+.empty{color:var(--muted);text-align:center;padding:18px 8px;border:1.5px dashed var(--line);border-radius:14px}
+
+.est{display:flex;flex-direction:column;gap:10px}
+.eitem{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:4px}
+.eitem:first-child{border-top:0;padding-top:0}
+.pill{align-self:flex-start;border-radius:999px;padding:3px 10px;font-weight:600;font-size:.85rem}
+.pill.good{background:var(--teal);color:var(--bg)}
+.pill.warn{background:var(--accent);color:var(--on-accent)}
+.pill.neutral{background:var(--track);color:var(--fg)}
+.uses{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.uses li{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:8px 0}
+.uses li:first-child{border-top:0}
+.uses .u{flex:1;min-width:0;display:flex;flex-direction:column}
+.uses .u small{color:var(--muted)}
+.uses .g{font-weight:600;font-variant-numeric:tabular-nums}
+.uses .x{background:transparent;border:0;color:var(--muted);font-size:1.3rem;padding:4px 8px}
+.xfer{width:100%;min-height:84px;resize:vertical;background:var(--bg);color:var(--fg);border:1.5px solid var(--line);border-radius:10px;padding:10px;font:.8rem/1.4 ui-monospace,Menlo,Consolas,monospace}
+.xfer::placeholder{color:var(--muted)}
+.actions{display:flex;gap:10px}
+.actions .btn{flex:1}
+[hidden]{display:none!important}
+@media (max-width:380px){.summary{grid-template-columns:1fr 1fr 1fr;gap:6px}.tile b{font-size:1.2rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <h1>Учёт пряжи</h1>
+
+  <div class="seg" role="group" aria-label="Раздел">
+    <button type="button" id="tabStash" aria-pressed="true">Запас</button>
+    <button type="button" id="tabProj" aria-pressed="false">Проекты</button>
+  </div>
+
+  <!-- ЗАПАС -->
+  <section id="viewStash" class="wrap" style="gap:16px" aria-label="Запас пряжи">
+    <div class="summary" id="stashSummary"></div>
+
+    <details class="panel" id="addYarnBox">
+      <summary>Добавить пряжу</summary>
+      <div class="inner">
+        <label class="fld"><span>Название</span><input class="txt" id="ayName" type="text" maxlength="60" placeholder="Например, Alize Cotton Gold"></label>
+        <div class="grid2">
+          <label class="fld"><span>Цвет словами</span><input class="txt" id="ayColorName" type="text" maxlength="40" placeholder="тёмно-зелёный"></label>
+          <label class="fld"><span>Метка цвета</span><input class="txt" id="ayColor" type="color" value="#7a9e7e"></label>
+          <label class="fld"><span>Вес мотка, г</span><input class="txt" id="ayW" type="number" inputmode="decimal" step="any" min="1" value="50"></label>
+          <label class="fld"><span>Метраж мотка, м</span><input class="txt" id="ayL" type="number" inputmode="decimal" step="any" min="0" value="100"></label>
+        </div>
+        <label class="fld"><span>Сколько мотков</span><input class="txt" id="aySk" type="number" inputmode="decimal" step="any" min="0" value="1"></label>
+        <div class="msg" id="ayMsg" role="status"></div>
+        <button class="btn primary" id="ayAdd" type="button">Добавить в запас</button>
+      </div>
+    </details>
+
+    <div class="list" id="yarnList"></div>
+  </section>
+
+  <!-- ПРОЕКТЫ -->
+  <section id="viewProj" class="wrap" style="gap:16px" aria-label="Проекты" hidden>
+    <div class="tabs" id="pTabs" role="tablist" aria-label="Проекты"></div>
+
+    <div class="panel">
+      <label class="fld"><span>Название проекта</span><input class="txt" id="pName" type="text" maxlength="40"></label>
+      <div class="grid2">
+        <label class="fld"><span>Рядов или кругов всего</span><input class="txt" id="pTotal" type="number" inputmode="numeric" min="0" max="99999" value="0"></label>
+        <label class="fld"><span>Сделано</span><input class="txt" id="pDone" type="number" inputmode="numeric" min="0" max="99999" value="0"></label>
+      </div>
+      <p class="foot">Эти два числа нужны для прикидки, хватит ли пряжи. Сделанные ряды можно взять из счётчика.</p>
+    </div>
+
+    <div class="panel">
+      <strong>Записать расход</strong>
+      <label class="fld"><span>Пряжа</span><select class="sel" id="useYarn"></select></label>
+      <div class="seg small" role="group" aria-label="Как записать">
+        <button type="button" id="modeUsed" aria-pressed="true">Потратил, г</button>
+        <button type="button" id="modeLeft" aria-pressed="false">Взвесил остаток, г</button>
+      </div>
+      <label class="fld"><span id="useLabel">Сколько граммов потрачено</span><input class="txt" id="useVal" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></label>
+      <div class="msg" id="useMsg" role="status"></div>
+      <button class="btn primary" id="useAdd" type="button">Записать</button>
+    </div>
+
+    <div class="panel">
+      <strong>Расход и прикидка</strong>
+      <div class="est" id="estimate"></div>
+    </div>
+
+    <div class="panel">
+      <strong>История расхода</strong>
+      <ul class="uses" id="usesList"></ul>
+    </div>
+
+    <button class="btn danger" id="delProj" type="button">Удалить проект</button>
+  </section>
+
+  <details class="panel">
+    <summary>Перенос и резервная копия</summary>
+    <div class="inner">
+      <p class="foot">Нажмите «Скопировать данные», отправьте текст себе (в заметки или мессенджер) и вставьте его в это поле на другом устройстве.</p>
+      <textarea class="xfer" id="xfer" spellcheck="false" placeholder="Сюда вставьте скопированные данные" aria-label="Данные"></textarea>
+      <div class="actions">
+        <button class="btn" id="exp" type="button">Скопировать данные</button>
+        <button class="btn" id="imp" type="button">Загрузить из поля</button>
+      </div>
+      <div class="foot" id="xmsg" role="status"></div>
+    </div>
+  </details>
+
+  <p class="foot">Данные сохраняются автоматически в этом браузере на этом устройстве. На телефоне и на компьютере они отдельные. В режиме инкогнито или после очистки данных браузера они пропадут.</p>
+</div>
+
+<script>
+(function(){
+  var KEY='yarn-tracker-v1';
+  var $=function(id){return document.getElementById(id)};
+  function numv(v){v=parseFloat(String(v).replace(',','.'));return isNaN(v)||v<0?0:v}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function fmt(n,d){
+    d=d||0; var f=Math.pow(10,d), r=Math.round(n*f)/f;
+    return r.toLocaleString('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:d});
+  }
+  function uid(){return 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+  function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+  function fmtDate(iso){
+    var p=String(iso).split('-'); if(p.length!==3) return '';
+    return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  }
+  function hexOk(h){return /^#[0-9a-fA-F]{6}$/.test(h)?h:'#999999'}
+
+  function mkProject(name){return {id:uid(),name:name,rowsTotal:0,rowsDone:0,uses:[]}}
+  function cleanYarn(y){
+    var w=Math.max(1,numv(y&&y.w)||50);
+    var g=numv(y&&y.g);
+    return {id:String((y&&y.id)||uid()),name:String((y&&y.name)||'Без названия').slice(0,60),
+      colorName:String((y&&y.colorName)||'').slice(0,40),color:hexOk(y&&y.color),
+      w:w,l:numv(y&&y.l),g:g,bought:Math.max(numv(y&&y.bought),g)};
+  }
+  function cleanProject(p,i){
+    var q=mkProject(String((p&&p.name)||('Проект '+(i+1))).slice(0,40));
+    if(p&&p.id) q.id=String(p.id);
+    q.rowsTotal=Math.min(Math.floor(numv(p&&p.rowsTotal)),99999);
+    q.rowsDone=Math.min(Math.floor(numv(p&&p.rowsDone)),99999);
+    q.uses=(p&&Array.isArray(p.uses)?p.uses:[]).slice(0,2000).map(function(u){
+      return {id:String((u&&u.id)||uid()),yid:String((u&&u.yid)||''),g:numv(u&&u.g),d:/^\d{4}-\d{2}-\d{2}$/.test(u&&u.d)?u.d:today()};
+    });
+    return q;
+  }
+  function clean(s){
+    var yarns=(s&&Array.isArray(s.yarns)?s.yarns:[]).slice(0,500).map(cleanYarn);
+    var projects=(s&&Array.isArray(s.projects)?s.projects:[]).slice(0,100).map(cleanProject);
+    if(!projects.length) projects=[mkProject('Мой проект')];
+    var act=projects[0].id;
+    projects.forEach(function(p){if(p.id===String(s&&s.activeP)) act=p.id});
+    return {tab:(s&&s.tab==='proj')?'proj':'stash',yarns:yarns,projects:projects,activeP:act};
+  }
+  function load(){
+    try{var raw=localStorage.getItem(KEY); if(raw) return clean(JSON.parse(raw));}catch(e){}
+    return clean({});
+  }
+  var S=load();
+  var mode='used', confirmKey=null, openYarn={};
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+  function proj(){
+    for(var i=0;i<S.projects.length;i++) if(S.projects[i].id===S.activeP) return S.projects[i];
+    S.activeP=S.projects[0].id; return S.projects[0];
+  }
+  function yarnById(id){for(var i=0;i<S.yarns.length;i++) if(S.yarns[i].id===id) return S.yarns[i]; return null}
+  function meters(y,g){return y.w>0?g/y.w*y.l:0}
+
+  /* ---------- Запас ---------- */
+  function renderStash(){
+    var tg=0,tm=0;
+    S.yarns.forEach(function(y){tg+=y.g;tm+=meters(y,y.g)});
+    $('stashSummary').innerHTML=
+      '<div class="tile"><b>'+fmt(tg)+'</b><span>граммов</span></div>'+
+      '<div class="tile"><b>'+fmt(tm)+'</b><span>метров</span></div>'+
+      '<div class="tile"><b>'+S.yarns.length+'</b><span>видов пряжи</span></div>';
+    var box=$('yarnList');
+    if(!S.yarns.length){
+      box.innerHTML='<div class="empty">Пока нет ни одной пряжи. Добавьте первую в разделе «Добавить пряжу» выше.</div>';
+      return;
+    }
+    box.innerHTML=S.yarns.map(function(y){
+      var pct=y.bought>0?Math.min(100,y.g/y.bought*100):0;
+      var sk=y.w>0?y.g/y.w:0;
+      var open=openYarn[y.id]?' open':'';
+      var delTxt=confirmKey==='y:'+y.id?'Точно удалить?':'Удалить пряжу';
+      var delStyle=confirmKey==='y:'+y.id?' style="background:var(--accent);color:var(--on-accent)"':'';
+      return '<article class="yarn" data-id="'+esc(y.id)+'">'+
+        '<div class="yhead"><span class="dot" style="background:'+y.color+'"></span>'+
+        '<div class="ytitle"><b>'+esc(y.name)+'</b><small>'+esc(y.colorName?y.colorName+' · ':'')+'моток '+fmt(y.w,1)+' г / '+fmt(y.l,1)+' м</small></div>'+
+        '<div class="ygrams"><b>'+fmt(y.g)+'</b> <span class="sub">г</span></div></div>'+
+        '<div class="bar" aria-hidden="true"><i style="width:'+pct.toFixed(1)+'%"></i></div>'+
+        '<div class="sub">≈ '+fmt(sk,1)+' мот. · '+fmt(meters(y,y.g))+' м осталось</div>'+
+        '<div class="yact"><button class="btn sm" type="button" data-a="plusSkein" data-id="'+esc(y.id)+'">+ Моток</button></div>'+
+        '<details class="edit" data-id="'+esc(y.id)+'"'+open+'><summary>Править</summary><div class="inner">'+
+          '<label class="fld"><span>Название</span><input class="txt" type="text" maxlength="60" data-f="name" data-id="'+esc(y.id)+'" value="'+esc(y.name)+'"></label>'+
+          '<div class="grid2">'+
+          '<label class="fld"><span>Цвет словами</span><input class="txt" type="text" maxlength="40" data-f="colorName" data-id="'+esc(y.id)+'" value="'+esc(y.colorName)+'"></label>'+
+          '<label class="fld"><span>Метка цвета</span><input class="txt" type="color" data-f="color" data-id="'+esc(y.id)+'" value="'+y.color+'"></label>'+
+          '<label class="fld"><span>Остаток, г</span><input class="txt" type="number" inputmode="decimal" step="any" min="0" data-f="g" data-id="'+esc(y.id)+'" value="'+(Math.round(y.g*10)/10)+'"></label>'+
+          '<label class="fld"><span>Вес мотка, г</span><input class="txt" type="number" inputmode="decimal" step="any" min="1" data-f="w" data-id="'+esc(y.id)+'" value="'+y.w+'"></label>'+
+          '<label class="fld"><span>Метраж мотка, м</span><input class="txt" type="number" inputmode="decimal" step="any" min="0" data-f="l" data-id="'+esc(y.id)+'" value="'+y.l+'"></label>'+
+          '</div>'+
+          '<button class="btn danger" type="button" data-a="delYarn" data-id="'+esc(y.id)+'"'+delStyle+'>'+delTxt+'</button>'+
+        '</div></details></article>';
+    }).join('');
+  }
+
+  /* ---------- Проекты ---------- */
+  function renderProj(){
+    var p=proj();
+    var tabs=$('pTabs'); tabs.innerHTML='';
+    S.projects.forEach(function(q){
+      var b=document.createElement('button'); b.type='button'; b.className='tab'; b.setAttribute('role','tab');
+      b.setAttribute('aria-selected',q.id===p.id?'true':'false'); b.textContent=q.name||'Без названия';
+      b.addEventListener('click',function(){S.activeP=q.id;confirmKey=null;save();render();});
+      tabs.appendChild(b);
+    });
+    var add=document.createElement('button'); add.type='button'; add.className='tab add'; add.textContent='+ Новый';
+    add.addEventListener('click',function(){
+      var q=mkProject('Проект '+(S.projects.length+1)); S.projects.push(q); S.activeP=q.id; confirmKey=null; save(); render();
+      $('pName').focus(); $('pName').select();
+    });
+    tabs.appendChild(add);
+
+    var act=document.activeElement;
+    if(act!==$('pName')) $('pName').value=p.name;
+    if(act!==$('pTotal')) $('pTotal').value=p.rowsTotal;
+    if(act!==$('pDone')) $('pDone').value=p.rowsDone;
+
+    var sel=$('useYarn'), keep=sel.value;
+    if(act!==sel){
+      sel.innerHTML=S.yarns.length?S.yarns.map(function(y){
+        return '<option value="'+esc(y.id)+'">'+esc(y.name)+(y.colorName?' · '+esc(y.colorName):'')+' ('+fmt(y.g)+' г)</option>';
+      }).join(''):'<option value="">Сначала добавьте пряжу в запас</option>';
+      if(keep && yarnById(keep)) sel.value=keep;
+    }
+
+    renderEstimate(p); renderUses(p);
+    $('delProj').textContent=confirmKey==='p'?'Точно удалить проект?':'Удалить проект';
+    $('delProj').style.background=confirmKey==='p'?'var(--accent)':''; $('delProj').style.color=confirmKey==='p'?'var(--on-accent)':'';
+  }
+  function usedByYarn(p){
+    var order=[], map={};
+    p.uses.forEach(function(u){
+      if(!(u.yid in map)){map[u.yid]=0; order.push(u.yid);}
+      map[u.yid]+=u.g;
+    });
+    return order.map(function(id){return {yid:id,g:map[id]}});
+  }
+  function renderEstimate(p){
+    var box=$('estimate'), rows=usedByYarn(p);
+    if(!rows.length){box.innerHTML='<div class="sub">Пока нет записей о расходе. Запишите, сколько пряжи ушло, и здесь появится прикидка.</div>';return;}
+    var tg=0,tm=0, html='';
+    rows.forEach(function(r){var y=yarnById(r.yid); tg+=r.g; if(y) tm+=meters(y,r.g);});
+    html+='<div class="eitem"><div><b>Всего потрачено: '+fmt(tg)+' г</b>'+(tm>0?' <span class="sub">(≈ '+fmt(tm)+' м)</span>':'')+'</div></div>';
+    var haveRows=p.rowsTotal>0 && p.rowsDone>0;
+    rows.forEach(function(r){
+      var y=yarnById(r.yid);
+      var name=y?esc(y.name)+(y.colorName?' · '+esc(y.colorName):''):'Удалённая пряжа';
+      var line='<div class="eitem"><b>'+name+'</b><div class="sub">Потрачено '+fmt(r.g)+' г'+(y?' (≈ '+fmt(meters(y,r.g))+' м)':'')+'</div>';
+      if(!y){
+        line+='</div>';
+      }else if(p.rowsTotal<=0){
+        line+='<span class="pill neutral">Укажите, сколько рядов всего</span></div>';
+      }else if(p.rowsDone<=0){
+        line+='<span class="pill neutral">Укажите, сколько рядов сделано</span></div>';
+      }else if(p.rowsDone>=p.rowsTotal){
+        line+='<span class="pill good">Проект закончен</span></div>';
+      }else{
+        var perRow=r.g/p.rowsDone;
+        var need=perRow*(p.rowsTotal-p.rowsDone)*1.1;
+        if(y.g>=need){
+          line+='<span class="pill good">Хватит</span><div class="sub">Нужно ещё ≈ '+fmt(need)+' г (≈ '+fmt(meters(y,need))+' м). В запасе '+fmt(y.g)+' г.</div></div>';
+        }else{
+          var short=need-y.g, sk=Math.ceil(short/y.w);
+          line+='<span class="pill warn">Не хватит</span><div class="sub">Нужно ещё ≈ '+fmt(need)+' г, в запасе '+fmt(y.g)+' г. Докупить ≈ '+fmt(short)+' г, это '+sk+' мот.</div></div>';
+        }
+      }
+      html+=line;
+    });
+    if(haveRows && p.rowsDone<p.rowsTotal) html+='<p class="foot">Прикидка исходит из того, что расход на ряд не меняется, и добавляет 10% запаса. Для узоров с разным расходом на ряд она приблизительная.</p>';
+    box.innerHTML=html;
+  }
+  function renderUses(p){
+    var ul=$('usesList');
+    if(!p.uses.length){ul.innerHTML='<li><span class="sub">Записей пока нет.</span></li>';return;}
+    ul.innerHTML=p.uses.slice().reverse().map(function(u){
+      var y=yarnById(u.yid);
+      return '<li><div class="u"><b>'+(y?esc(y.name):'Удалённая пряжа')+'</b><small>'+esc(fmtDate(u.d))+'</small></div>'+
+        '<span class="g">'+fmt(u.g,1)+' г</span>'+
+        '<button class="x" type="button" data-a="delUse" data-id="'+esc(u.id)+'" aria-label="Удалить запись и вернуть пряжу в запас">×</button></li>';
+    }).join('');
+  }
+
+  function render(){
+    var st=S.tab==='stash';
+    $('tabStash').setAttribute('aria-pressed',st); $('tabProj').setAttribute('aria-pressed',!st);
+    $('viewStash').hidden=!st; $('viewProj').hidden=st;
+    if(!S.yarns.length) $('addYarnBox').open=true;
+    renderStash(); renderProj();
+    $('modeUsed').setAttribute('aria-pressed',mode==='used'); $('modeLeft').setAttribute('aria-pressed',mode==='left');
+    $('useLabel').textContent=mode==='used'?'Сколько граммов потрачено':'Сколько граммов осталось на весах';
+  }
+
+  /* ---------- События ---------- */
+  $('tabStash').addEventListener('click',function(){S.tab='stash';save();render();});
+  $('tabProj').addEventListener('click',function(){S.tab='proj';save();render();});
+  $('modeUsed').addEventListener('click',function(){mode='used';$('useMsg').textContent='';render();});
+  $('modeLeft').addEventListener('click',function(){mode='left';$('useMsg').textContent='';render();});
+
+  $('ayAdd').addEventListener('click',function(){
+    var name=$('ayName').value.trim();
+    if(!name){$('ayMsg').textContent='Впишите название пряжи.';$('ayName').focus();return;}
+    var w=Math.max(1,numv($('ayW').value)||50), l=numv($('ayL').value), sk=numv($('aySk').value);
+    var g=w*sk;
+    var y=cleanYarn({name:name,colorName:$('ayColorName').value.trim(),color:$('ayColor').value,w:w,l:l,g:g,bought:g});
+    S.yarns.push(y); save();
+    $('ayName').value=''; $('ayColorName').value=''; $('ayMsg').textContent='Добавлено: '+y.name+'.';
+    render();
+  });
+
+  $('yarnList').addEventListener('toggle',function(e){
+    var d=e.target; if(d&&d.classList&&d.classList.contains('edit')) openYarn[d.getAttribute('data-id')]=d.open;
+  },true);
+  $('yarnList').addEventListener('click',function(e){
+    var b=e.target.closest('[data-a]'); if(!b) return;
+    var a=b.getAttribute('data-a'), id=b.getAttribute('data-id'), y=yarnById(id);
+    if(a==='plusSkein' && y){confirmKey=null; y.g+=y.w; y.bought+=y.w; save(); render();}
+    if(a==='delYarn' && y){
+      if(confirmKey!=='y:'+id){confirmKey='y:'+id; render(); return;}
+      S.yarns=S.yarns.filter(function(q){return q.id!==id}); confirmKey=null; save(); render();
+    }
+  });
+  $('yarnList').addEventListener('change',function(e){
+    var f=e.target.getAttribute&&e.target.getAttribute('data-f'); if(!f) return;
+    var y=yarnById(e.target.getAttribute('data-id')); if(!y) return;
+    var v=e.target.value;
+    if(f==='name') y.name=(v.trim()||'Без названия').slice(0,60);
+    else if(f==='colorName') y.colorName=v.trim().slice(0,40);
+    else if(f==='color') y.color=hexOk(v);
+    else if(f==='g'){y.g=numv(v); if(y.g>y.bought) y.bought=y.g;}
+    else if(f==='w') y.w=Math.max(1,numv(v)||y.w);
+    else if(f==='l') y.l=numv(v);
+    confirmKey=null; save(); render();
+  });
+
+  $('pName').addEventListener('change',function(e){proj().name=e.target.value.trim()||'Без названия';save();render();});
+  $('pTotal').addEventListener('change',function(e){proj().rowsTotal=Math.min(Math.floor(numv(e.target.value)),99999);save();render();});
+  $('pDone').addEventListener('change',function(e){proj().rowsDone=Math.min(Math.floor(numv(e.target.value)),99999);save();render();});
+
+  $('useAdd').addEventListener('click',function(){
+    var msg=$('useMsg'), p=proj(), y=yarnById($('useYarn').value);
+    if(!y){msg.textContent='Сначала добавьте пряжу на вкладке «Запас».';return;}
+    var raw=$('useVal').value;
+    if(String(raw).trim()===''){msg.textContent='Впишите число граммов.';return;}
+    var val=numv(raw), g=mode==='used'?val:y.g-val;
+    if(mode==='left' && val>y.g){msg.textContent='На весах получилось больше, чем записано в запасе ('+fmt(y.g)+' г). Поправьте остаток в запасе или число.';return;}
+    if(!(g>0)){msg.textContent=mode==='used'?'Впишите число больше нуля.':'Остаток не меньше прежнего, расходовать нечего.';return;}
+    if(g>y.g+0.001){msg.textContent='В запасе только '+fmt(y.g)+' г этой пряжи.';return;}
+    y.g=Math.max(0,y.g-g);
+    p.uses.push({id:uid(),yid:y.id,g:g,d:today()});
+    $('useVal').value=''; msg.textContent='Записано: '+fmt(g,1)+' г. В запасе осталось '+fmt(y.g)+' г.';
+    confirmKey=null; save(); render();
+  });
+  $('usesList').addEventListener('click',function(e){
+    var b=e.target.closest('[data-a="delUse"]'); if(!b) return;
+    var p=proj(), id=b.getAttribute('data-id');
+    var u=p.uses.filter(function(q){return q.id===id})[0]; if(!u) return;
+    var y=yarnById(u.yid); if(y){y.g+=u.g; if(y.g>y.bought) y.bought=y.g;}
+    p.uses=p.uses.filter(function(q){return q.id!==id}); $('useMsg').textContent=''; save(); render();
+  });
+  $('delProj').addEventListener('click',function(){
+    if(confirmKey!=='p'){confirmKey='p';render();return;}
+    var id=S.activeP;
+    S.projects=S.projects.filter(function(q){return q.id!==id});
+    if(!S.projects.length) S.projects.push(mkProject('Мой проект'));
+    S.activeP=S.projects[0].id; confirmKey=null; save(); render();
+  });
+
+  var impConfirm=false;
+  function xmsg(t){$('xmsg').textContent=t}
+  function resetImp(){impConfirm=false;$('imp').textContent='Загрузить из поля'}
+  $('xfer').addEventListener('input',resetImp);
+  $('exp').addEventListener('click',function(){
+    var txt=JSON.stringify(S), ta=$('xfer'); ta.value=txt; resetImp();
+    var ok=function(){xmsg('Скопировано. Вставьте в поле на другом устройстве и нажмите «Загрузить из поля».')};
+    var man=function(){ta.focus();ta.select();xmsg('Текст выделен. Скопируйте его вручную.')};
+    try{navigator.clipboard.writeText(txt).then(ok,man)}catch(e){man()}
+  });
+  $('imp').addEventListener('click',function(){
+    var s=null;
+    try{s=JSON.parse($('xfer').value.trim())}catch(e){}
+    if(!s||(!Array.isArray(s.yarns)&&!Array.isArray(s.projects))){
+      resetImp(); xmsg('Не получилось прочитать данные. Вставьте текст целиком, как он был скопирован.'); return;
+    }
+    if(!impConfirm){
+      impConfirm=true; $('imp').textContent='Заменить текущие данные?';
+      xmsg('Запас и проекты на этом устройстве будут заменены загруженными. Нажмите ещё раз для подтверждения.'); return;
+    }
+    S=clean(s); confirmKey=null; openYarn={}; resetImp(); save(); render();
+    xmsg('Готово. Загружено: пряжи '+S.yarns.length+', проектов '+S.projects.length+'.');
+  });
+
+  render();
+})();
+</script>
+
+</body></html>
